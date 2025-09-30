@@ -5921,6 +5921,8 @@ var require_prisma = __commonJS({
 
 // src/app.ts
 var import_fastify = __toESM(require("fastify"), 1);
+
+// src/http/controllers/register.ts
 var import_zod2 = require("zod");
 
 // src/lib/prisma.ts
@@ -5945,9 +5947,8 @@ var prisma = new import_prisma.PrismaClient({
   log: env.NODE_ENV === "dev" ? ["query"] : []
 });
 
-// src/app.ts
-var app = (0, import_fastify.default)();
-app.post("/users", async (request, reply) => {
+// src/http/controllers/register.ts
+async function register(request, reply) {
   const requestBodySchema = import_zod2.z.object({
     name: import_zod2.z.string(),
     email: import_zod2.z.string().email(),
@@ -5962,7 +5963,16 @@ app.post("/users", async (request, reply) => {
     }
   });
   return reply.status(201).send();
-});
+}
+
+// src/http/routes.ts
+async function appRoutes(app2) {
+  app2.post("/users", register);
+}
+
+// src/app.ts
+var app = (0, import_fastify.default)();
+app.register(appRoutes);
 
 // src/server.ts
 app.listen({
