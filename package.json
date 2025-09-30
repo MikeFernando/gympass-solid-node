@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "tsup src/server.ts --watch",
     "build": "tsup src/server.ts --outdir dist",
-    "start": "node dist/server.js"
+    "start": "node dist/server.cjs"
   },
   "keywords": [],
   "author": "",
