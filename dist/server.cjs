@@ -5923,6 +5923,7 @@ var require_prisma = __commonJS({
 var import_fastify = __toESM(require("fastify"), 1);
 
 // src/http/controllers/register.ts
+var import_bcryptjs = require("bcryptjs");
 var import_zod2 = require("zod");
 
 // src/lib/prisma.ts
@@ -5955,14 +5956,30 @@ async function register(request, reply) {
     password: import_zod2.z.string()
   });
   const { name, email, password } = requestBodySchema.parse(request.body);
-  await prisma.user.create({
-    data: {
-      name,
-      email,
-      password_hash: password
+  const password_hash = await (0, import_bcryptjs.hash)(password, 6);
+  const userWithSameEmail = await prisma.user.findUnique({
+    where: {
+      email
     }
   });
-  return reply.status(201).send();
+  if (userWithSameEmail) {
+    return reply.status(409).send();
+  }
+  try {
+    await prisma.user.create({
+      data: {
+        name,
+        email,
+        password_hash
+      }
+    });
+    return reply.status(201).send();
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "P2002") {
+      return reply.status(409).send();
+    }
+    throw error;
+  }
 }
 
 // src/http/routes.ts
