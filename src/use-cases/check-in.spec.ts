@@ -4,6 +4,7 @@ import { CheckInUseCase } from "./check-in"
 import { InMemoryCheckInsRepository } from "../repository/in-memory/in-memory-check-ins-repository"
 import { MaxNumberOfCheckInsError } from "./erros/max-number-of-check-ins-error"
 import { InMemoryGymsRepository } from "../repository/in-memory/in-memory-gyms-repository"
+import { MaxDistanceError } from "./erros/max-distance-error"
 
 let inMemoryCheckInsRepository: InMemoryCheckInsRepository
 let inMemoryGymsRepository: InMemoryGymsRepository
@@ -86,5 +87,12 @@ describe('Check in use case', () => {
     })
   })
 
-
+  it('should not be able to check in on distant gym', async () => {
+    await expect(sut.execute({
+      userId: 'user-1',
+      gymId: 'gym-1',
+      userLatitude: -24.5100436, // Approximately 200m away from gym
+      userLongitude: -48.8473689,
+    })).rejects.toBeInstanceOf(MaxDistanceError)
+  })
 })
