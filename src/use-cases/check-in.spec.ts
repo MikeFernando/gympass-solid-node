@@ -3,17 +3,29 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { CheckInUseCase } from "./check-in"
 import { InMemoryCheckInsRepository } from "../repository/in-memory/in-memory-check-ins-repository"
 import { MaxNumberOfCheckInsError } from "./erros/max-number-of-check-ins-error"
+import { InMemoryGymsRepository } from "../repository/in-memory/in-memory-gyms-repository"
 
 let inMemoryCheckInsRepository: InMemoryCheckInsRepository
+let inMemoryGymsRepository: InMemoryGymsRepository
 let sut: CheckInUseCase
 
 describe('Check in use case', () => {
 
-  beforeEach(() => {
+  beforeEach(async () => {
     inMemoryCheckInsRepository = new InMemoryCheckInsRepository()
-    sut = new CheckInUseCase(inMemoryCheckInsRepository)
+    inMemoryGymsRepository = new InMemoryGymsRepository()
+    sut = new CheckInUseCase(inMemoryCheckInsRepository, inMemoryGymsRepository)
 
     vi.useFakeTimers()
+
+    await inMemoryGymsRepository.create({
+      id: 'gym-1',
+      title: 'Gym 1',
+      description: 'Gym 1 description',
+      phone: '1234567890',
+      latitude: -24.5090436,
+      longitude: -48.8463689,
+    })
   })
 
   afterEach(() => {
@@ -24,10 +36,13 @@ describe('Check in use case', () => {
     vi.clearAllMocks()
   })
 
+
   it('should be able to check in', async () => {
     const checkIn = await sut.execute({
       userId: 'user-1',
       gymId: 'gym-1',
+      userLatitude: -24.5090436,
+      userLongitude: -48.8463689,
     })
 
     expect(checkIn.checkIn.id).toEqual(expect.any(String))
@@ -39,11 +54,15 @@ describe('Check in use case', () => {
     await sut.execute({
       userId: 'user-1',
       gymId: 'gym-1',
+      userLatitude: -24.5090436,
+      userLongitude: -48.8463689,
     })
 
     await expect(sut.execute({
       userId: 'user-1',
       gymId: 'gym-1',
+      userLatitude: -24.5090436,
+      userLongitude: -48.8463689,
     })).rejects.toBeInstanceOf(MaxNumberOfCheckInsError)
   })
 
@@ -53,6 +72,8 @@ describe('Check in use case', () => {
     await sut.execute({
       userId: 'user-1',
       gymId: 'gym-1',
+      userLatitude: -24.5090436,
+      userLongitude: -48.8463689,
     })
 
     vi.setSystemTime(new Date(2025, 0, 2, 8, 0, 0))
@@ -60,6 +81,10 @@ describe('Check in use case', () => {
     await sut.execute({
       userId: 'user-1',
       gymId: 'gym-1',
+      userLatitude: -24.5090436,
+      userLongitude: -48.8463689,
     })
   })
+
+
 })
