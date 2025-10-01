@@ -1,18 +1,27 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { InMemoryCheckInsRepository } from "@/repository/in-memory/in-memory-check-ins-repository"
 import { ValidateCheckInUseCase } from "./validade-check-in"
 import { ResourceNotFoundError } from "./erros/resource-not-found-error"
+import { LateCheckInValidationError } from "./erros/late-check-in-validation-error"
 
 let inMemoryCheckInsRepository: InMemoryCheckInsRepository
 let sut: ValidateCheckInUseCase
 
 describe('Validate Check In Use Case', () => {
 
-  it('should be able to validate check-in', async () => {
+  beforeEach(async () => {
     inMemoryCheckInsRepository = new InMemoryCheckInsRepository()
     sut = new ValidateCheckInUseCase(inMemoryCheckInsRepository)
 
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('should be able to validate check-in', async () => {
     const createdCheckIn = await inMemoryCheckInsRepository.create({
       user_id: 'user-1',
       gym_id: 'gym-1',
@@ -27,11 +36,22 @@ describe('Validate Check In Use Case', () => {
   })
 
   it('should not be able to validate an inexistent check-in', async () => {
-    inMemoryCheckInsRepository = new InMemoryCheckInsRepository()
-    sut = new ValidateCheckInUseCase(inMemoryCheckInsRepository)
-
     await expect(sut.execute({
       checkInId: 'check-in-1',
     })).rejects.toBeInstanceOf(ResourceNotFoundError)
+  })
+
+  it('should not be able to validate the check-in after 20 minutes of its creation', async () => {
+    const createdCheckIn = await inMemoryCheckInsRepository.create({
+      user_id: 'user-1',
+      gym_id: 'gym-1',
+      created_at: new Date(),
+    })
+
+    vi.advanceTimersByTime(21 * 60 * 1000) // 21 minutes
+
+    await expect(sut.execute({
+      checkInId: createdCheckIn.id,
+    })).rejects.toBeInstanceOf(LateCheckInValidationError)
   })
 })
