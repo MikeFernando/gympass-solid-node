@@ -18,17 +18,17 @@ describe('Get User Profile Use C  ase', () => {
     inMemoryUsersRepository = new InMemoryUsersRepository()
     sut = new GetUserProfileUseCase(inMemoryUsersRepository)
 
-    await inMemoryUsersRepository.create({
+    const createdUser = await inMemoryUsersRepository.create({
       name: 'John Doe',
       email: 'john.doe@example.com',
       password_hash: await hash('123456', 6),
     })
 
     const { user } = await sut.execute({
-      id: 'user-1',
+      id: createdUser.id,
     })
 
-    expect(user.id).toEqual(expect.any(String))
+    expect(user.id).toEqual(createdUser.id)
     expect(user.name).toBe('John Doe')
   })
 
