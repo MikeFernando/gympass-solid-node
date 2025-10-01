@@ -1,19 +1,34 @@
+export interface Coordinate {
+  latitude: number
+  longitude: number
+}
+
 export function getDistanceBetweenCoordinates(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-): number {
-  const R = 6371e3 // Earth's radius in meters
-  const φ1 = lat1 * Math.PI / 180 // φ, λ in radians
-  const φ2 = lat2 * Math.PI / 180
-  const Δφ = (lat2 - lat1) * Math.PI / 180
-  const Δλ = (lon2 - lon1) * Math.PI / 180
+  from: Coordinate,
+  to: Coordinate,
+) {
+  if (from.latitude === to.latitude && from.longitude === to.longitude) {
+    return 0
+  }
 
-  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) * Math.cos(φ2) *
-    Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  const fromRadian = (Math.PI * from.latitude) / 180
+  const toRadian = (Math.PI * to.latitude) / 180
 
-  return R * c // in metres
+  const theta = from.longitude - to.longitude
+  const radTheta = (Math.PI * theta) / 180
+
+  let dist =
+    Math.sin(fromRadian) * Math.sin(toRadian) +
+    Math.cos(fromRadian) * Math.cos(toRadian) * Math.cos(radTheta)
+
+  if (dist > 1) {
+    dist = 1
+  }
+
+  dist = Math.acos(dist)
+  dist = (dist * 180) / Math.PI
+  dist = dist * 60 * 1.1515
+  dist = dist * 1.609344
+
+  return dist
 }

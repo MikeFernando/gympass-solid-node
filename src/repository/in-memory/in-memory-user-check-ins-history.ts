@@ -6,6 +6,17 @@ import type { CheckInsRepository } from "../check-ins-repository"
 export class InMemoryUserCheckInsHistoryRepository implements CheckInsRepository {
   public items: CheckIn[] = []
 
+  async save(checkIn: CheckIn): Promise<CheckIn> {
+    const index = this.items.findIndex(item => item.id === checkIn.id)
+    this.items[index] = checkIn
+    return checkIn
+  }
+
+  async findById(id: string): Promise<CheckIn | null> {
+    const checkIn = this.items.find(item => item.id === id)
+    return checkIn ?? null
+  }
+
   async countByUserId(userId: string): Promise<number> {
     return this.items.filter(item => item.user_id === userId).length
   }

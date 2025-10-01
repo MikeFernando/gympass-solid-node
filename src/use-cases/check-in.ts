@@ -34,15 +34,13 @@ export class CheckInUseCase {
 
     // O usuário não pode fazer check-in se não estiver perto (100m) da academia;
     const distance = getDistanceBetweenCoordinates(
-      userLatitude,
-      userLongitude,
-      gym.latitude.toNumber(),
-      gym.longitude.toNumber()
+      { latitude: userLatitude, longitude: userLongitude },
+      { latitude: gym.latitude.toNumber(), longitude: gym.longitude.toNumber() }
     )
 
-    const MAX_DISTANCE_IN_METERS = 100
+    const MAX_DISTANCE_IN_KILOMETERS = 0.1 // 100 meters
 
-    if (distance > MAX_DISTANCE_IN_METERS) {
+    if (distance > MAX_DISTANCE_IN_KILOMETERS) {
       throw new MaxDistanceError()
     }
 

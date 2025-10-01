@@ -6,6 +6,22 @@ import type { CheckInsRepository } from '../check-ins-repository'
 export class InMemoryCheckInsRepository implements CheckInsRepository {
   public items: CheckIn[] = []
 
+  async save(checkIn: CheckIn): Promise<CheckIn> {
+    const index = this.items.findIndex(item => item.id === checkIn.id)
+    this.items[index] = checkIn
+    return checkIn
+  }
+
+  async findManyByUserId(userId: string, page: number): Promise<CheckIn[]> {
+    return this.items
+      .filter(item => item.user_id === userId)
+      .slice((page - 1) * 20, page * 20)
+  }
+
+  async countByUserId(userId: string): Promise<number> {
+    return this.items.filter(item => item.user_id === userId).length
+  }
+
   async findByUserIdOnDate(userId: string, date: Date): Promise<CheckIn | null> {
     const checkIn = this.items
       .find(item => item.user_id === userId && item.created_at
@@ -16,6 +32,11 @@ export class InMemoryCheckInsRepository implements CheckInsRepository {
       return null
     }
     return checkIn
+  }
+
+  async findById(id: string): Promise<CheckIn | null> {
+    const checkIn = this.items.find(item => item.id === id)
+    return checkIn ?? null
   }
 
   async create(data: Prisma.CheckInUncheckedCreateInput): Promise<CheckIn> {
