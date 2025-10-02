@@ -1,16 +1,13 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { prisma } from "@/lib/prisma";
+
+import { makeGetUserProfileUseCase } from "@/use-cases/factories/make-get-user-profile-use-case";
 
 export async function profile(request: FastifyRequest, reply: FastifyReply) {
-  await request.jwtVerify()
-
   const { sub } = request.user as { sub: string }
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: sub,
-    },
-  })
+  const getUserProfile = makeGetUserProfileUseCase()
+
+  const { user } = await getUserProfile.execute({ id: sub })
 
   return reply.status(200).send({
     user: {
