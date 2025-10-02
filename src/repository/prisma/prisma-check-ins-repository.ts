@@ -6,6 +6,7 @@ import type { CheckIn, Prisma } from "@/generated/prisma"
 import type { CheckInsRepository } from "../check-ins-repository"
 
 export class PrismaCheckInsRepository implements CheckInsRepository {
+
   async save(checkIn: CheckIn) {
     const updatedCheckIn = await prisma.checkIn.update({
       where: { id: checkIn.id },

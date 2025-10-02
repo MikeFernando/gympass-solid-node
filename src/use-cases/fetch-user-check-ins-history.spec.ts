@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest"
 
-import { InMemoryUserCheckInsHistoryRepository } from "@/repository/in-memory/in-memory-user-check-ins-history"
 import { FetchUserCheckInsHistoryUseCase } from "./fetch-user-check-ins-history"
+import { InMemoryCheckInsRepository } from "@/repository/in-memory/in-memory-check-ins-repository"
 
-let inMemoryUserCheckInsHistoryRepository: InMemoryUserCheckInsHistoryRepository
+let inMemoryUserCheckInsHistoryRepository: InMemoryCheckInsRepository
 let sut: FetchUserCheckInsHistoryUseCase
 
 describe('Fetch User Check Ins History Use Case', () => {
 
   it('should be able to fetch user check ins history', async () => {
-    inMemoryUserCheckInsHistoryRepository = new InMemoryUserCheckInsHistoryRepository()
+    inMemoryUserCheckInsHistoryRepository = new InMemoryCheckInsRepository()
     sut = new FetchUserCheckInsHistoryUseCase(inMemoryUserCheckInsHistoryRepository)
 
     await inMemoryUserCheckInsHistoryRepository.create({
@@ -41,7 +41,7 @@ describe('Fetch User Check Ins History Use Case', () => {
   })
 
   it('should be able to fetch paginated check-in history', async () => {
-    inMemoryUserCheckInsHistoryRepository = new InMemoryUserCheckInsHistoryRepository()
+    inMemoryUserCheckInsHistoryRepository = new InMemoryCheckInsRepository()
     sut = new FetchUserCheckInsHistoryUseCase(inMemoryUserCheckInsHistoryRepository)
 
     // Todas as listas de dados precisam estar paginadas com 20 itens por página;
